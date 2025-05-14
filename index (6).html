@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hello, World!</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+      <h1 class="title">Hello World! </h1>
+      <p id="currentTime"></p>
+      <script src="script.js"></script>
+  </body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Junnu Ai - Personal AI Assistant</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
+  /* Reset/Box-sizing */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #e5ddd5;
+    color: #202124;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+
+  /* Container */
+  .app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 700px;
+    margin: 0 auto;
+    border: 1px solid #ccc;
+    background: #fff;
+    box-shadow: 0 0 20px rgb(0 0 0 / 0.1);
+    position: relative;
+  }
+
+  /* Stylish Header */
+  header {
+    background: #075e54;
+    padding: 14px 20px;
+    color: #fff;
+    font-weight: 900;
+    font-size: 1.6rem;
+    letter-spacing: 0.05em;
+    user-select: none;
+    position: relative;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: space-between;
+  }
+  /* Header left flex container for avatar + name */
+  .header-left {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .header-left img {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid #49a078;
+    object-fit: cover;
+    transition: border-color 0.3s ease;
+  }
+  .header-left img:hover {
+    border-color: #e0f2e9;
+  }
+  /* Stylish name text */
+  .header-name {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 1.5rem;
+    margin-left: 10px;
+    user-select: none;
+    white-space: nowrap;
+  }
+
+  /* Three dots menu on right */
+  .header-right {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    height: 18px;
+    width: 24px;
+  }
+  .header-right span {
+    display: block;
+    height: 4px;
+    width: 4px;
+    background-color: white;
+    border-radius: 50%;
+  }
+  .header-right:hover span {
+    background-color: #a3d8c1;
+  }
+
+  /* Chat messages panel */
+  .chat-panel {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 20px 10px;
+    background: #ece5dd;
+  }
+  /* Scrollbar styling */
+  .chat-panel::-webkit-scrollbar {
+    width: 8px;
+  }
+  .chat-panel::-webkit-scrollbar-thumb {
+    background-color: #a0a0a0;
+    border-radius: 10px;
+  }
+
+  /* Message container */
+  .message {
+    max-width: 75%;
+    margin-bottom: 14px;
+    display: flex;
+    clear: both;
+    align-items: flex-end;
+    gap: 10px;
+  }
+  .message.user {
+    justify-content: flex-end;
+  }
+  .message.assistant {
+    justify-content: flex-start;
+  }
+
+  /* Avatar */
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: #ddd;
+    object-fit: cover;
+    box-shadow: 0 0 3px rgba(0,0,0,0.2);
+  }
+
+  /* Message bubble */
+  .message-bubble {
+    padding: 10px 14px;
+    font-size: 1rem;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    box-shadow: 0 1px 4px rgb(0 0 0 / 0.1);
+    word-wrap: break-word;
+    max-width: 100%;
+    position: relative;
+    display: inline-block;
+    border-radius: 18px;
+    transition: background-color 0.3s ease;
+  }
+
+  .message.user .message-bubble {
+    background: #dcf8c6;
+    border-radius: 18px 18px 0 18px;
+    color: #202124;
+  }
+  .message.assistant .message-bubble {
+    background: white;
+    border-radius: 18px 18px 18px 0;
+    color: #202124;
+  }
+
+  /* Images inside messages */
+  .message-bubble img {
+    max-width: 250px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: block;
+  }
+
+  /* Audio inside messages */
+  .message-bubble audio {
+    width: 200px;
+    outline: none;
+    display: block;
+  }
+
+  /* Video inside messages */
+  .message-bubble video {
+    max-width: 250px;
+    border-radius: 8px;
+    display: block;
+  }
+
+  /* Footer input */
+  .input-footer {
+    border-top: 1px solid #ccc;
+    background: #f0f0f0;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  form.chat-form {
+    display: flex;
+    flex-grow: 1;
+    gap: 8px;
+  }
+
+  textarea#user-input {
+    flex-grow: 1;
+    resize: none;
+    padding: 12px 16px;
+    font-size: 1rem;
+    border-radius: 20px;
+    border: 1px solid #ccc;
+    font-family: inherit;
+    min-height: 38px;
+    max-height: 120px;
+    line-height: 1.4;
+    overflow-y: auto;
+  }
+
+  textarea#user-input:focus {
+    outline: none;
+    border-color: #075e54;
+    box-shadow: 0 0 6px #075e54aa;
+  }
+
+  button.send-button {
+    background: #075e54;
+    border: none;
+    color: white;
+    border-radius: 50%;
+    width: 42px;
+    height: 42px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+  }
+  button.send-button:disabled {
+    background-color: #9cccaa;
+    cursor: not-allowed;
+  }
+  button.send-button:hover:not(:disabled) {
+    background-color: #064c3b;
+  }
+
+  button.media-button, button.voice-button {
+    background: transparent;
+    border: none;
+    color: #075e54;
+    width: 34px;
+    height: 34px;
+    cursor: pointer;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+  }
+  button.media-button:hover, button.voice-button:hover {
+    background: #d0e6dd;
+  }
+
+  /* Typing indicator for assistant */
+  .typing-indicator {
+    width: 54px;
+    height: 20px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .typing-dot {
+    width: 8px;
+    height: 8px;
+    background: #777;
+    border-radius: 50%;
+    opacity: 0.4;
+    animation-name: blink;
+    animation-duration: 1.4s;
+    animation-iteration-count: infinite;
+    animation-fill-mode: both;
+  }
+  .typing-dot:nth-child(1) {
+    animation-delay: 0s;
+  }
+  .typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  .typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+  @keyframes blink {
+    0% {
+      opacity: 0.4;
+    }
+    20% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.4;
+    }
+  }
+
+  /* Responsive tweaks */
+  @media (max-width: 480px) {
+    .app-container {
+      max-width: 100vw;
+      border: none;
+      box-shadow: none;
+      height: 100vh;
+    }
+    .chat-panel {
+      padding: 12px 10px;
+    }
+    textarea#user-input {
+      font-size: 0.9rem;
+      min-height: 36px;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="app-container" role="main" aria-label="Junnu Personal AI Assistant">
+    <header>
+      <div class="header-left" title="Click to change your profile picture" tabindex="0" role="button" aria-label="Change profile picture">
+        <img id="user-dp" src="https://i.pravatar.cc/150?u=default-user" alt="User profile picture" />
+        <span class="header-name">Junnu Ai</span>
+      </div>
+      <div class="header-right" title="Menu" role="button" tabindex="0" aria-label="Options menu" aria-haspopup="true" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </header>
+    <div class="chat-panel" id="chat-panel" aria-live="polite" aria-atomic="false" tabindex="0"></div>
+    <footer class="input-footer">
+      <button class="media-button" type="button" id="media-btn" title="Upload media" aria-label="Upload media">
+        📎
+      </button>
+      <button class="voice-button" type="button" id="voice-btn" title="Voice input" aria-label="Voice input">
+        🎤
+      </button>
+      <form id="chat-form" class="chat-form" aria-label="Send message">
+        <textarea id="user-input" rows="1" placeholder="Type your message here..." aria-label="Message input" required></textarea>
+        <button type="submit" class="send-button" aria-label="Send message" disabled>➤</button>
+      </form>
+      <input type="file" id="media-upload" accept="image/*,video/*,audio/*" multiple style="display:none" />
+      <input type="file" id="user-dp-upload" accept="image/*" style="display:none" />
+    </footer>
+  </div>
+
+<script>
+  (function() {
+    const chatPanel = document.getElementById('chat-panel');
+    const chatForm = document.getElementById('chat-form');
+    const userInput = document.getElementById('user-input');
+    const sendButton = chatForm.querySelector('button.send-button');
+    const mediaBtn = document.getElementById('media-btn');
+    const voiceBtn = document.getElementById('voice-btn');
+    const mediaUpload = document.getElementById('media-upload');
+    const userDpUpload = document.getElementById('user-dp-upload');
+    const userDpImg = document.getElementById('user-dp');
+    const headerRight = document.querySelector('.header-right');
+
+    let isWaitingForResponse = false;
+    let mediaUploading = false;
+    let recognition = null;
+    let isRecording = false;
+
+    // Default AI avatar URL
+    const AI_AVATAR = 'https://i.pravatar.cc/150?u=assistant-avatar';
+
+    // Enable send button only if there's input and not waiting for AI
+    userInput.addEventListener('input', () => {
+      sendButton.disabled = !userInput.value.trim() || isWaitingForResponse || mediaUploading;
+      autoResizeTextarea();
+    });
+
+    // Auto resize textarea vertically based on content
+    function autoResizeTextarea() {
+      userInput.style.height = 'auto';
+      userInput.style.height = userInput.scrollHeight + 'px';
+    }
+    autoResizeTextarea();
+
+    // Scroll chat panel to bottom
+    function scrollToBottom() {
+      chatPanel.scrollTop = chatPanel.scrollHeight;
+    }
+
+    // Create avatar img element
+    function createAvatar(srcUrl, altText) {
+      const img = document.createElement('img');
+      img.src = srcUrl;
+      img.alt = altText;
+      img.className = 'avatar';
+      return img;
+    }
+
+    // Create message bubble and append
+    function appendMessage(content, sender = 'assistant', contentType = 'text') {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `message ${sender}`;
+      // Create avatar
+      const avatar = sender === 'user' ? createAvatar(userDpImg.src, 'User profile picture') : createAvatar(AI_AVATAR, 'Assistant avatar');
+      msgDiv.appendChild(avatar);
+
+      const bubble = document.createElement('div');
+      bubble.className = 'message-bubble';
+
+      if(contentType === 'text') {
+        bubble.textContent = content;
+      } else if(contentType === 'image') {
+        const img = document.createElement('img');
+        img.src = content;
+        img.alt = 'User uploaded image';
+        // Open image in new tab on click
+        img.addEventListener('click', () => {
+          window.open(content, '_blank');
+        });
+        bubble.appendChild(img);
+      } else if(contentType === 'audio') {
+        const audio = document.createElement('audio');
+        audio.controls = true;
+        audio.src = content;
+        bubble.appendChild(audio);
+      } else if(contentType === 'video') {
+        const video = document.createElement('video');
+        video.src = content;
+        video.controls = true;
+        video.style.maxWidth = '250px';
+        bubble.appendChild(video);
+      }
+
+      msgDiv.appendChild(bubble);
+      chatPanel.appendChild(msgDiv);
+      scrollToBottom();
+    }
+
+    // Create typing indicator bubble
+    function createTypingIndicator() {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'message assistant';
+      msgDiv.setAttribute('aria-label', 'Assistant is typing');
+      // Add assistant avatar
+      const avatar = createAvatar(AI_AVATAR, 'Assistant avatar');
+      msgDiv.appendChild(avatar);
+
+      const bubble = document.createElement('div');
+      bubble.className = 'message-bubble';
+      const dots = document.createElement('div');
+      dots.className = 'typing-indicator';
+      for(let i=0; i<3; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'typing-dot';
+        dots.appendChild(dot);
+      }
+      bubble.appendChild(dots);
+      msgDiv.appendChild(bubble);
+      chatPanel.appendChild(msgDiv);
+      scrollToBottom();
+      return msgDiv;
+    }
+
+    // Placeholder AI response function (to be replaced with backend/api call)
+    function fakeAIResponse(userText) {
+      const responses = [
+        "That's quite interesting! Tell me more.",
+        "I'm here to help, what else would you like to know?",
+        "Can you clarify your question a bit?",
+        "I don't have that information right now, but I'm learning!",
+        "Let's talk about something exciting! What do you enjoy doing?"
+      ];
+      return responses[Math.floor(Math.random() * responses.length)];
+    }
+
+    // Simulate typing effect for assistant reply
+    function typeAssistantMessage(text, onComplete) {
+      let index = 0;
+      let messageContent = '';
+      const typingMsg = createTypingIndicator();
+
+      async function typeChar() {
+        if (index < text.length) {
+          messageContent += text.charAt(index);
+          // Replace typing indicator with text up to index
+          typingMsg.querySelector('.message-bubble').textContent = messageContent;
+          index++;
+          scrollToBottom();
+          setTimeout(typeChar, 25);
+        } else {
+          if (onComplete) onComplete();
+        }
+      }
+      typeChar();
+      return typingMsg;
+    }
+
+    // Handle submit event
+    chatForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (isWaitingForResponse || mediaUploading) return;
+      const userText = userInput.value.trim();
+      if (!userText) return;
+
+      // Add user message
+      appendMessage(userText, 'user');
+      userInput.value = '';
+      autoResizeTextarea();
+      sendButton.disabled = true;
+
+      // Prepare for AI response
+      isWaitingForResponse = true;
+
+      // Simulate delay and AI typing (replace with real API call)
+      const typingDelay = 700;
+      await new Promise(r => setTimeout(r, typingDelay));
+
+      // Get AI response
+      const aiReply = fakeAIResponse(userText);
+
+      // Remove typing indicator and type AI message
+      typeAssistantMessage(aiReply, () => {
+        isWaitingForResponse = false;
+        sendButton.disabled = false;
+        userInput.focus();
+      });
+    });
+
+    // Keyboard shortcuts: Enter to send, Shift+Enter for newline
+    userInput.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        if (!sendButton.disabled) {
+          chatForm.dispatchEvent(new Event('submit', { cancelable: true }));
+        }
+      }
+    });
+
+    // Media upload button - open file picker
+    mediaBtn.addEventListener('click', () => {
+      if(mediaUploading || isWaitingForResponse) return;
+      mediaUpload.click();
+    });
+
+    // Handle media upload
+    mediaUpload.addEventListener('change', async () => {
+      if(mediaUploading || isWaitingForResponse) return;
+      const files = mediaUpload.files;
+      if(!files.length) return;
+
+      mediaUploading = true;
+
+      // For demo, just read files as local URLs and display
+      for(let file of files) {
+        const url = URL.createObjectURL(file);
+        let type = 'text';
+        if(file.type.startsWith('image/')) type = 'image';
+        else if(file.type.startsWith('audio/')) type = 'audio';
+        else if(file.type.startsWith('video/')) type = 'video';
+
+        appendMessage(url, 'user', type);
+      }
+
+      mediaUpload.value = '';
+      mediaUploading = false;
+      userInput.focus();
+    });
+
+    // Voice input handling using Web Speech API
+    function initSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if(!SpeechRecognition) return null;
+
+      const recog = new SpeechRecognition();
+      recog.continuous = false;
+      recog.interimResults = true;
+      recog.lang = 'en-US';
+
+      recog.onstart = () => {
+        isRecording = true;
+        voiceBtn.style.color = '#075e54';
+        voiceBtn.title = 'Stop recording';
+      };
+      recog.onend = () => {
+        isRecording = false;
+        voiceBtn.style.color = '#075e54';
+        voiceBtn.title = 'Voice input';
+      };
+      recog.onerror = (e) => {
+        console.error('Speech recognition error:', e.error);
+        isRecording = false;
+        voiceBtn.style.color = '#075e54';
+        voiceBtn.title = 'Voice input';
+      };
+      recog.onresult = (event) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        userInput.value = transcript;
+        autoResizeTextarea();
+        sendButton.disabled = !transcript.trim();
+      };
+      return recog;
+    }
+
+    recognition = initSpeechRecognition();
+
+    voiceBtn.addEventListener('click', () => {
+      if(!recognition) {
+        alert('Speech Recognition not supported in this browser.');
+        return;
+      }
+      if(isRecording) {
+        recognition.stop();
+      } else {
+        recognition.start();
+      }
+    });
+
+    // User DP upload triggered by clicking avatar in header
+    document.querySelector('.header-left').addEventListener('click', () => {
+      userDpUpload.click();
+    });
+    document.querySelector('.header-left').addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        userDpUpload.click();
+      }
+    });
+
+    userDpUpload.addEventListener('change', () => {
+      const file = userDpUpload.files[0];
+      if(!file) return;
+
+      const reader = new FileReader();
+      reader.onload = e => {
+        userDpImg.src = e.target.result;
+        // Optionally store in localStorage for persistence (not implemented here)
+      };
+      reader.readAsDataURL(file);
+      userDpUpload.value = '';
+    });
+
+    // Optionally add interactivity to header-right (3 dots)
+    headerRight.addEventListener('click', () => {
+      alert('Menu button clicked! You can add menu options here.');
+    });
+    headerRight.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        headerRight.click();
+      }
+    });
+
+    // Initial focus and scroll
+    userInput.focus();
+    scrollToBottom();
+
+  })();
+</script>
+</body>
+</html>
+
